@@ -1,13 +1,17 @@
 import React, { memo } from "react";
+import { useTable } from "../../../../context/Table";
 
 interface RowProps {
-    onClick: () => void;
+  id: number,
+  onClick: () => void;
 }
 
-const Row: React.FC<RowProps> = ({onClick}) => {
-    return (
-        <td onClick={onClick}></td>
-    );
+const Row: React.FC<RowProps> = ({ id, onClick }) => {
+  const { state: { currentTable } } = useTable();
+
+  return (
+    <td onClick={onClick}>{id in currentTable && currentTable[id]}</td>
+  );
 };
 
 export default memo(Row);

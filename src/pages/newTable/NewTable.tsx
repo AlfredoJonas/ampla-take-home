@@ -1,14 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import './NewTable.css';
 import Row from './components/row/Row';
-
-// For a bigger table requirements up to 100 rows and 30 columns 
-// use virtualizations to keep performance
-const COLUMNS = 30;
-const ROWS = 100;
-// Define an array 'letters' to represent the characters A to Z
-const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-
+import { ActionTypes, useTable } from '../../context/Table';
+import { COLUMNS, ROWS, letters } from '../../utils';
 
 function NewTable() {
   // Keeps track of the spreadsheet table as simple matrix 
@@ -18,6 +12,8 @@ function NewTable() {
   const [clickedRow, setClickedRow] = useState<number>(-1);
 
   const [cellValue, setCellValue] = useState<string>("");
+
+  const { state: { currentTable }, dispatch } = useTable();
 
   /**
    * Generates an array of numbers starting from an initial value and
@@ -82,13 +78,22 @@ function NewTable() {
     return newHeaderCols;
   }, [COLUMNS]);
 
+  const setCurrentCell = (id: number) => {
+    if(id in currentTable){
+      setCellValue(currentTable[id]);
+    }
+    setClickedRow(id)
+  }
+
   const onCellValueChange = (e: React.FormEvent<HTMLInputElement>): void => {
     setCellValue(e.currentTarget.value);
   };
 
-  const onCellBlur = (i: number, j:number) => {
+  const onCellBlur = (childValue: number) => {
     if (cellValue !== "") {
+      dispatch({ type: ActionTypes.NEW_CELL, payload: { cell: {id: childValue, value: cellValue}} });
       setCellValue("");
+      console.log("CELL CLEANED");
     }
   }
 
@@ -112,18 +117,22 @@ function NewTable() {
                       <th key={'th'+startingKeyValue}>{parentIndex+1}</th>
                       {
                         row.map(
-                          (childValue: number, childIndex: number) => clickedRow === childValue ?
+                          (childValue: number) => clickedRow === childValue ?
                             <td key={childValue+parentIndex} className='input-focus'>
                               <input
                                 autoFocus
                                 type='text'
                                 value={cellValue}
                                 onChange={onCellValueChange}
-                                onBlur={() => onCellBlur(parentIndex, childIndex)}
+                                onBlur={() => onCellBlur(childValue)}
                               />
                               </td>
                           :
-                            <Row key={childValue+parentIndex} onClick={() => setClickedRow(childValue)}></Row>
+                            <Row
+                              key={childValue+parentIndex}
+                              id={childValue}
+                              onClick={() => setCurrentCell(childValue)}
+                            />
                         )
                       }
                     </tr>
