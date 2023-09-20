@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import './NewTable.css';
+import Row from './components/row/Row';
 
-const COLUMNS = 100;
+// For a bigger table requirements up to 100 rows and 30 columns 
+// use virtualizations to keep performance
+const COLUMNS = 30;
 const ROWS = 100;
 // Define an array 'letters' to represent the characters A to Z
 const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -98,7 +101,7 @@ function NewTable() {
                       {
                         row.map(
                           (childValue: number) => 
-                            <td key={childValue+parentIndex}></td>
+                            <Row key={childValue+parentIndex}></Row>
                         )
                       }
                     </tr>
