@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import './NewTable.css';
 import Row from './components/row/Row';
 
@@ -15,8 +15,9 @@ function NewTable() {
   // of numbers so we keep rendering faster without complex json objects
   const [table, setTable] = useState<number[][]>([[]]);
 
-  // Keeps track the related indexes of each column header
-  const [headerCols, setHeaderCols] = useState<string[]>([]);
+  const [clickedRow, setClickedRow] = useState<number>(-1);
+
+  const [cellValue, setCellValue] = useState<string>("");
 
   /**
    * Generates an array of numbers starting from an initial value and
@@ -30,31 +31,10 @@ function NewTable() {
   const buildSheetList = (many: number, initial: number = 0): number[] => {
     const sheetList = new Array(many);
     for(let i=0; i<many ;i++){
-      sheetList[i] = i+initial;
+      sheetList[i] = i+initial+1;
     }
     return sheetList;
   }
-
-
-  // Generate the initial table for the spreadsheet
-  useEffect(() => {
-    // Starting on 0 and increasing in 1 until the array is finished
-    // so if we have a table of 2 by 3 the first row will be [0,1] and
-    // the last one [4,5]
-    const newTable = new Array(ROWS);
-    for(let i=0; i<ROWS ;i++){
-      const startingKeyValue = COLUMNS*i;
-      newTable[i] = buildSheetList(COLUMNS, startingKeyValue);
-    }
-    setTable(newTable);
-
-    // Build once the headers list to keep track of the related indexes
-    const newHeaderCols = new Array(COLUMNS);
-    for(let i=0; i<COLUMNS ;i++){
-      newHeaderCols[i] = generateSheetHeader(i);
-    }
-    setHeaderCols(newHeaderCols);
-  }, [COLUMNS, ROWS]);
 
   /**
    * Converts a numerical column index into a string representation 
@@ -80,6 +60,38 @@ function NewTable() {
     return columnHeader;
   }
 
+  // Generate the initial table for the spreadsheet
+  useEffect(() => {
+    // Starting on 0 and increasing in 1 until the array is finished
+    // so if we have a table of 2 by 3 the first row will be [0,1] and
+    // the last one [4,5]
+    const newTable = new Array(ROWS);
+    for(let i=0; i<ROWS ;i++){
+      const startingKeyValue = COLUMNS*i;
+      newTable[i] = buildSheetList(COLUMNS, startingKeyValue);
+    }
+    setTable(newTable);
+  }, [COLUMNS, ROWS]);
+  
+  // Defines the header list to keep track of the related indexes using useMemo
+  const currentHeaderCols = useMemo(() => {
+    const newHeaderCols = new Array(COLUMNS);
+    for (let i = 0; i < COLUMNS; i++) {
+      newHeaderCols[i] = generateSheetHeader(i);
+    }
+    return newHeaderCols;
+  }, [COLUMNS]);
+
+  const onCellValueChange = (e: React.FormEvent<HTMLInputElement>): void => {
+    setCellValue(e.currentTarget.value);
+  };
+
+  const onCellBlur = (i: number, j:number) => {
+    if (cellValue !== "") {
+      setCellValue("");
+    }
+  }
+
   return (
     <div className="home">
       <div className="spreadsheet">
@@ -87,7 +99,7 @@ function NewTable() {
             <thead>
               <tr>
                 <th></th>
-                {headerCols.map((value: string) => 
+                {currentHeaderCols.map((value: string) => 
                   <th key={value}>{value}</th>
                 )}
               </tr>
@@ -100,8 +112,18 @@ function NewTable() {
                       <th key={'th'+startingKeyValue}>{parentIndex+1}</th>
                       {
                         row.map(
-                          (childValue: number) => 
-                            <Row key={childValue+parentIndex}></Row>
+                          (childValue: number, childIndex: number) => clickedRow === childValue ?
+                            <td key={childValue+parentIndex} className='input-focus'>
+                              <input
+                                autoFocus
+                                type='text'
+                                value={cellValue}
+                                onChange={onCellValueChange}
+                                onBlur={() => onCellBlur(parentIndex, childIndex)}
+                              />
+                              </td>
+                          :
+                            <Row key={childValue+parentIndex} onClick={() => setClickedRow(childValue)}></Row>
                         )
                       }
                     </tr>

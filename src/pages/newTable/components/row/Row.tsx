@@ -1,13 +1,13 @@
-import React from "react";
+import React, { memo } from "react";
 
 interface RowProps {
-    key: number;
+    onClick: () => void;
 }
 
-const Row: React.FC<RowProps> = ({key}) => {
+const Row: React.FC<RowProps> = ({onClick}) => {
     return (
-        <td key={key}></td>
+        <td onClick={onClick}></td>
     );
 };
 
-export default Row;
+export default memo(Row);

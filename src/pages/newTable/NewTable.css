@@ -21,3 +21,19 @@ td {
   background-color: #fff;
   min-width: 100px;
 }
+
+td input{
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+td input:focus{
+  outline: none;
+}
+
+td.input-focus{
+  border: 2px solid #0b57d0;
+  padding: 1px;
+}
