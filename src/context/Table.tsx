@@ -15,8 +15,8 @@ interface TableState {
 
 // Define action types
 export enum ActionTypes {
-  NEW_CELL = 'NEW_CELL',
-  MODIFY_CELL = 'MODIFY_CELL',
+  SET_CELL = 'SET_CELL',
+  CELL_ERROR = 'CELL_ERROR',
   SAVE_TABLE = 'SAVE_TABLE'
 }
 
@@ -26,13 +26,13 @@ type TableAction = { type: ActionTypes; payload: {cell: Cell}};
 
 const tableReducer = (state: TableState, action: TableAction): TableState => {
   switch (action.type) {
-    case ActionTypes.NEW_CELL:
+    case ActionTypes.SET_CELL:
       const {
 				payload: {cell: {id, value}},
 			} = action;
       state.currentTable[id] = value;
       return { ...state };
-    case ActionTypes.MODIFY_CELL:
+    case ActionTypes.CELL_ERROR:
       return { ...state };
     case ActionTypes.SAVE_TABLE:
       return { ...state };

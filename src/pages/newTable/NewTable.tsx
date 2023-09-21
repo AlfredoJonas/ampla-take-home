@@ -9,6 +9,8 @@ function NewTable() {
   // of numbers so we keep rendering faster without complex json objects
   const [table, setTable] = useState<number[][]>([[]]);
 
+  const [headerCols, setHeaderCols] = useState<string[]>([]);
+
   const [clickedRow, setClickedRow] = useState<number>(-1);
 
   const [cellValue, setCellValue] = useState<string>("");
@@ -67,16 +69,15 @@ function NewTable() {
       newTable[i] = buildSheetList(COLUMNS, startingKeyValue);
     }
     setTable(newTable);
-  }, [COLUMNS, ROWS]);
-  
-  // Defines the header list to keep track of the related indexes using useMemo
-  const currentHeaderCols = useMemo(() => {
+
+    // Defines the header list to keep track of the related indexes using useMemo
     const newHeaderCols = new Array(COLUMNS);
     for (let i = 0; i < COLUMNS; i++) {
       newHeaderCols[i] = generateSheetHeader(i);
     }
-    return newHeaderCols;
-  }, [COLUMNS]);
+    setHeaderCols(newHeaderCols)
+
+  }, [COLUMNS, ROWS]);
 
   const setCurrentCell = (id: number) => {
     if(id in currentTable){
@@ -90,10 +91,13 @@ function NewTable() {
   };
 
   const onCellBlur = (childValue: number) => {
-    if (cellValue !== "") {
-      dispatch({ type: ActionTypes.NEW_CELL, payload: { cell: {id: childValue, value: cellValue}} });
+    if (childValue in currentTable || (!(childValue in currentTable) || cellValue !== "")) {
+      dispatch({
+        type: ActionTypes.SET_CELL,
+        payload: { cell: {id: childValue, value: cellValue}}
+      });
+      setClickedRow(-1)
       setCellValue("");
-      console.log("CELL CLEANED");
     }
   }
 
@@ -104,7 +108,7 @@ function NewTable() {
             <thead>
               <tr>
                 <th></th>
-                {currentHeaderCols.map((value: string) => 
+                {headerCols.map((value: string) => 
                   <th key={value}>{value}</th>
                 )}
               </tr>
@@ -117,7 +121,7 @@ function NewTable() {
                       <th key={'th'+startingKeyValue}>{parentIndex+1}</th>
                       {
                         row.map(
-                          (childValue: number) => clickedRow === childValue ?
+                          (childValue: number, childIndex: number) => clickedRow === childValue ?
                             <td key={childValue+parentIndex} className='input-focus'>
                               <input
                                 autoFocus
@@ -131,6 +135,8 @@ function NewTable() {
                             <Row
                               key={childValue+parentIndex}
                               id={childValue}
+                              headerCols={headerCols}
+                              table={table}
                               onClick={() => setCurrentCell(childValue)}
                             />
                         )
