@@ -14,7 +14,7 @@ const Row: React.FC<RowProps> = ({ id, headerCols, table, onClick }) => {
   const { state: { currentTable }, } = useTable();
   const regex = /^=([A-Za-z]+)([1-9]+)$/;
 
-  const checkNextCell = (refId: number, visitedCells: Set<number>): ReactNode => {
+  const checkNextCell = (refId: number, visitedCells: Set<number>): Record<string, string | boolean> => {
     if (refId in currentTable) {
       const cellValue = currentTable[refId];
 
@@ -24,7 +24,7 @@ const Row: React.FC<RowProps> = ({ id, headerCols, table, onClick }) => {
       if (visitedCells.has(refId)) {
         // Since this text is not being stored 
         // it'll change if we set the current cell
-        return '#¡REF! Circular';
+        return {error: true, value: '#¡REF! Circular'};
       }
 
       visitedCells.add(refId);
@@ -50,17 +50,18 @@ const Row: React.FC<RowProps> = ({ id, headerCols, table, onClick }) => {
           // referenced cell or continue referencing other cells
           return checkNextCell(cellId, visitedCells);
         } else {
-          return cellValue;
+          return {error: false, value: cellValue};
         }
       } else {
-        return cellValue;
+        return {error: false, value: cellValue};
       }
     }
-    return ''; // Handle the case when id is not in currentTable
+    return {error: false, value: ''}; // Handle the case when id is not in currentTable
   }
 
   const visitedCells = new Set<number>();
-  return <td onClick={onClick}>{checkNextCell(id, visitedCells)}</td>;
+  const {error, value} = checkNextCell(id, visitedCells);
+  return <td className={`${error ? 'cell-error' : ''}`} onClick={onClick}>{value}</td>;
 };
 
 export default memo(Row);
