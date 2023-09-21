@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { ActionTypes, useTable } from "../../../../context/Table";
-import { ROWS } from "../../../../utils";
+import { ROWS } from "../../../../constants";
 import "./Cell.css";
 
 interface CellProps {
@@ -60,7 +60,7 @@ const Cell: React.FC<CellProps> = ({ id, headerCols, table }) => {
           // referenced cell or continue referencing other cells
           return checkNextCell(cellId, visitedCells);
         } else {
-          return { error: false, value: cellValue };
+          return { error: false, value: "" };
         }
       } else {
         return { error: false, value: cellValue };

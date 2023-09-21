@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import "./Table.css";
 import { ActionTypes, useTable } from "../../context/Table";
-import { COLUMNS, ROWS, letters } from "../../utils";
+import { COLUMNS, ROWS, letters } from "../../constants";
 import Row from "./components/row/Row";
 
 const Table: React.FC = () => {
