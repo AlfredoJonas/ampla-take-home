@@ -2,7 +2,6 @@ import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 
 const initialState = {
   currentTable: {},
-  savedTables: {}
 };
 
 type currentTable = Record<string, string>
@@ -10,19 +9,17 @@ type currentTable = Record<string, string>
 // Define the initial state interface
 interface TableState {
   currentTable: currentTable;
-  savedTables: Record<string, currentTable>;
 }
 
 // Define action types
 export enum ActionTypes {
   SET_CELL = 'SET_CELL',
-  CELL_ERROR = 'CELL_ERROR',
-  SAVE_TABLE = 'SAVE_TABLE'
+  SET_SAVED_TABLE = 'SET_SAVED_TABLE',
 }
 
 type Cell = {id: number, value: string};
 // Define the reducer function
-type TableAction = { type: ActionTypes; payload: {cell: Cell}};
+type TableAction = { type: ActionTypes; payload: Record<string, Cell | currentTable>};
 
 const tableReducer = (state: TableState, action: TableAction): TableState => {
   switch (action.type) {
@@ -32,10 +29,11 @@ const tableReducer = (state: TableState, action: TableAction): TableState => {
 			} = action;
       state.currentTable[id] = value;
       return { ...state };
-    case ActionTypes.CELL_ERROR:
-      return { ...state };
-    case ActionTypes.SAVE_TABLE:
-      return { ...state };
+    case ActionTypes.SET_SAVED_TABLE:
+      const {
+				payload: { table },
+			} = action;
+      state.currentTable = table as currentTable;
     default:
       return state;
   }

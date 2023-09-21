@@ -1,0 +1,100 @@
+
+table {
+  border: 1px solid #afafaf;
+  width: 100%;
+  border-collapse: collapse;
+  overflow-x: auto;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 5px;
+  text-align: center;
+}
+
+th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+td {
+  background-color: #fff;
+  min-width: 100px;
+}
+
+td input{
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+td input:focus{
+  outline: none;
+}
+
+td.input-focus{
+  border: 2px solid #0b57d0;
+  padding: 1px;
+}
+
+/* Style for the share button container */
+.share-button {
+  display: inline-block;
+}
+
+/* Style for the share button text */
+.share-button-text {
+  text-decoration: none;
+  color: #fff; /* Change the text color as needed */
+  background-color: #e84c3d; /* Change the background color as needed */
+  border: none;
+  border-radius: 20px; /* Adjust the border-radius for a rounded shape */
+  padding: 8px 16px; /* Adjust the padding as needed */
+  margin-right: 10px; /* Add spacing to the right */
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.share-button-text:hover {
+  background-color: #ff6347; /* Change the hover background color as needed */
+}
+
+/* FloatingMessage.css */
+.floating-message {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #e84c3d;
+  color: #fff;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transform: translateY(100%);
+  opacity: 0;
+  transition: transform 0.5s, opacity 0.5s;
+  animation: slide-up 0.5s forwards; /* Apply the animation */
+}
+
+.floating-message.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Style for the "URL Copied!" message */
+.copy-url {
+  font-weight: bold;
+  margin: 0;
+}
+
+/* Animation for showing the floating message */
+@keyframes slide-up {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

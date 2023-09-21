@@ -1,13 +1,19 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import './NewTable.css';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import {v4 as uuidv4} from 'uuid';
+import './Table.css';
 import Row from './components/row/Row';
 import { ActionTypes, useTable } from '../../context/Table';
 import { COLUMNS, ROWS, letters } from '../../utils';
 
-function NewTable() {
+function Table() {
   // Keeps track of the spreadsheet table as simple matrix 
   // of numbers so we keep rendering faster without complex json objects
   const [table, setTable] = useState<number[][]>([[]]);
+  
+  const { id } = useParams();
+
+  const [savedTableId, setSavedTableId] = useState<string | undefined>(id);
 
   const [headerCols, setHeaderCols] = useState<string[]>([]);
 
@@ -16,6 +22,34 @@ function NewTable() {
   const [cellValue, setCellValue] = useState<string>("");
 
   const { state: { currentTable }, dispatch } = useTable();
+
+  const [showMessage, setShowMessage] = useState(false);
+
+
+  // Function to show the floating message
+  const shareTableUrl = () => {
+    let tableId = savedTableId ? savedTableId : uuidv4();
+    localStorage.setItem(tableId, JSON.stringify(currentTable))
+    setSavedTableId(tableId);
+    const sharedUrl = `${window.location.href}/${tableId}`;
+    navigator.clipboard.writeText(sharedUrl);
+    console.log(sharedUrl);
+    setShowMessage(true);
+    
+    setTimeout(() => {
+      setShowMessage(false);
+    }, 2000); // Hide the message after 2 seconds
+  };
+
+  useEffect(() => {
+    if(savedTableId){
+      const savedTable = localStorage.getItem(savedTableId) || "";
+      dispatch({
+        type: ActionTypes.SET_SAVED_TABLE,
+        payload: { table: JSON.parse(savedTable)}
+      });
+    }
+  }, [savedTableId])
 
   /**
    * Generates an array of numbers starting from an initial value and
@@ -107,7 +141,18 @@ function NewTable() {
         <table>
             <thead>
               <tr>
-                <th></th>
+                <th>
+                <div className="share-button">
+                  <button className="share-button-text" onClick={shareTableUrl}>Share</button>
+                  {
+                    showMessage && (
+                      <div className={`floating-message ${showMessage ? 'show' : ''}`}>
+                        <p className="copy-url">URL Copied!</p>
+                      </div>
+                    )
+                  }
+                </div>
+                </th>
                 {headerCols.map((value: string) => 
                   <th key={value}>{value}</th>
                 )}
@@ -121,7 +166,7 @@ function NewTable() {
                       <th key={'th'+startingKeyValue}>{parentIndex+1}</th>
                       {
                         row.map(
-                          (childValue: number, childIndex: number) => clickedRow === childValue ?
+                          (childValue: number) => clickedRow === childValue ?
                             <td key={childValue+parentIndex} className='input-focus'>
                               <input
                                 autoFocus
@@ -152,4 +197,4 @@ function NewTable() {
   );
 }
 
-export default NewTable;
+export default Table;
