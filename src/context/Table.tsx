@@ -1,10 +1,15 @@
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useReducer,
+  type ReactNode,
+} from "react";
 
 const initialState = {
   currentTable: {},
 };
 
-type currentTable = Record<string, string>
+type currentTable = Record<string, string>;
 
 // Define the initial state interface
 interface TableState {
@@ -13,26 +18,34 @@ interface TableState {
 
 // Define action types
 export enum ActionTypes {
-  SET_CELL = 'SET_CELL',
-  SET_SAVED_TABLE = 'SET_SAVED_TABLE',
+  SET_CELL = "SET_CELL",
+  SET_SAVED_TABLE = "SET_SAVED_TABLE",
 }
 
-type Cell = {id: number, value: string};
+interface Cell {
+  id: number;
+  value: string;
+}
 // Define the reducer function
-type TableAction = { type: ActionTypes; payload: Record<string, Cell | currentTable>};
+interface TableAction {
+  type: ActionTypes;
+  payload: Record<string, Cell | currentTable>;
+}
 
 const tableReducer = (state: TableState, action: TableAction): TableState => {
   switch (action.type) {
     case ActionTypes.SET_CELL:
       const {
-				payload: {cell: {id, value}},
-			} = action;
+        payload: {
+          cell: { id, value },
+        },
+      } = action;
       state.currentTable[id] = value;
       return { ...state };
     case ActionTypes.SET_SAVED_TABLE:
       const {
-				payload: { table },
-			} = action;
+        payload: { table },
+      } = action;
       state.currentTable = table as currentTable;
     default:
       return state;
@@ -40,13 +53,15 @@ const tableReducer = (state: TableState, action: TableAction): TableState => {
 };
 
 // Create the context
-const TableContext = createContext<{ state: TableState; dispatch: React.Dispatch<TableAction> } | undefined>(undefined);
+const TableContext = createContext<
+  { state: TableState; dispatch: React.Dispatch<TableAction> } | undefined
+>(undefined);
 
 // Create a custom hook to access the context
 export const useTable = () => {
   const context = useContext(TableContext);
   if (context === undefined) {
-    throw new Error('useTable must be used within a TableProvider');
+    throw new Error("useTable must be used within a TableProvider");
   }
   return context;
 };

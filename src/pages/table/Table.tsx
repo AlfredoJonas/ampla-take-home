@@ -1,13 +1,13 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import {v4 as uuidv4} from 'uuid';
-import './Table.css';
-import { ActionTypes, useTable } from '../../context/Table';
-import { COLUMNS, ROWS, letters } from '../../utils';
-import Row from './components/row/Row';
+import React, { useEffect, useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
+import "./Table.css";
+import { ActionTypes, useTable } from "../../context/Table";
+import { COLUMNS, ROWS, letters } from "../../utils";
+import Row from "./components/row/Row";
 
 function Table() {
-  // Keeps track of the spreadsheet table as simple matrix 
+  // Keeps track of the spreadsheet table as simple matrix
   // of numbers so we keep rendering faster without complex json objects
   const [table, setTable] = useState<number[][]>([[]]);
 
@@ -17,35 +17,37 @@ function Table() {
 
   const [headerCols, setHeaderCols] = useState<string[]>([]);
 
-  const { state: { currentTable }, dispatch } = useTable();
+  const {
+    state: { currentTable },
+    dispatch,
+  } = useTable();
 
   const [showMessage, setShowMessage] = useState(false);
 
-
   // Function to show the floating message
   const shareTableUrl = () => {
-    let tableId = savedTableId ? savedTableId : uuidv4();
-    localStorage.setItem(tableId, JSON.stringify(currentTable))
+    const tableId = savedTableId || uuidv4();
+    localStorage.setItem(tableId, JSON.stringify(currentTable));
     setSavedTableId(tableId);
     const sharedUrl = `${window.location.href}/${tableId}`;
     navigator.clipboard.writeText(sharedUrl);
     console.log(sharedUrl);
     setShowMessage(true);
-    
+
     setTimeout(() => {
       setShowMessage(false);
     }, 2000); // Hide the message after 2 seconds
   };
 
   useEffect(() => {
-    if(savedTableId){
+    if (savedTableId) {
       const savedTable = localStorage.getItem(savedTableId) || "";
       dispatch({
         type: ActionTypes.SET_SAVED_TABLE,
-        payload: { table: JSON.parse(savedTable)}
+        payload: { table: JSON.parse(savedTable) },
       });
     }
-  }, [savedTableId])
+  }, [savedTableId]);
 
   /**
    * Generates an array of numbers starting from an initial value and
@@ -58,36 +60,36 @@ function Table() {
    */
   const buildSheetList = (many: number, initial: number = 0): number[] => {
     const sheetList = new Array(many);
-    for(let i=0; i<many ;i++){
-      sheetList[i] = i+initial+1;
+    for (let i = 0; i < many; i++) {
+      sheetList[i] = i + initial + 1;
     }
     return sheetList;
-  }
+  };
 
   /**
-   * Converts a numerical column index into a string representation 
+   * Converts a numerical column index into a string representation
    * using letters from "A" to "Z" and beyond (like "AA," "AB," "AC," ...)
-   * @param {number} columnIndex - The columnIndex parameter is a number 
+   * @param {number} columnIndex - The columnIndex parameter is a number
    * that represents the index of a column in a spreadsheet.
    * @returns a string, which is the generated column header for a given column index.
    */
   const generateSheetHeader = (columnIndex: number): string => {
     // Initialize an empty string to build the column header
-    let columnHeader = '';
+    let columnHeader = "";
     let index = columnIndex;
 
     // Start a loop that continues until 'index' becomes negative
     while (index >= 0) {
-        // Calculate the letter for the current position in the column header
-        columnHeader = letters[index % 26] + columnHeader;
+      // Calculate the letter for the current position in the column header
+      columnHeader = letters[index % 26] + columnHeader;
 
-        // Update 'index' to move to the next position in the header
-        index = Math.floor(index / 26) - 1;
+      // Update 'index' to move to the next position in the header
+      index = Math.floor(index / 26) - 1;
     }
 
     return columnHeader;
-  }
-  
+  };
+
   // Generate the initial table for the spreadsheet
   useEffect(() => {
     // Initialize the table array
@@ -102,47 +104,49 @@ function Table() {
     for (let i = 0; i < COLUMNS; i++) {
       newHeaderCols[i] = generateSheetHeader(i);
     }
-    setHeaderCols(newHeaderCols)
-
+    setHeaderCols(newHeaderCols);
   }, [COLUMNS, ROWS]);
 
   return (
     <div className="home">
       <div className="spreadsheet">
         <table>
-            <thead>
-              <tr>
-                <th>
+          <thead>
+            <tr>
+              <th>
                 <div className="share-button">
-                  <button className="share-button-text" onClick={shareTableUrl}>Share</button>
-                  {
-                    showMessage && (
-                      <div className={`floating-message ${showMessage ? 'show' : ''}`}>
-                        <p className="copy-url">URL Copied!</p>
-                      </div>
-                    )
-                  }
+                  <button className="share-button-text" onClick={shareTableUrl}>
+                    Share
+                  </button>
+                  {showMessage && (
+                    <div
+                      className={`floating-message ${
+                        showMessage ? "show" : ""
+                      }`}
+                    >
+                      <p className="copy-url">URL Copied!</p>
+                    </div>
+                  )}
                 </div>
-                </th>
-                {headerCols.map((value: string) => 
-                  <th key={value}>{value}</th>
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              {table.map((row: number[], parentIndex: number) => {
-                  return (
-                    <Row
-                      key={'tr' + parentIndex + 1}
-                      parentIndex={parentIndex}
-                      row={row}
-                      headerCols={headerCols}
-                      table={table}
-                    />
-                  );
-                }
-              )}
-            </tbody>
+              </th>
+              {headerCols.map((value: string) => (
+                <th key={value}>{value}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {table.map((row: number[], parentIndex: number) => {
+              return (
+                <Row
+                  key={"tr" + parentIndex + 1}
+                  parentIndex={parentIndex}
+                  row={row}
+                  headerCols={headerCols}
+                  table={table}
+                />
+              );
+            })}
+          </tbody>
         </table>
       </div>
     </div>
