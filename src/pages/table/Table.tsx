@@ -11,8 +11,8 @@ const Table: React.FC = () => {
   // of numbers so we keep rendering faster without complex json objects
   const [table, setTable] = useState<number[][]>([[]]);
 
-  const { id } = useParams();
-
+  const params = useParams();
+  const id = params?.id;
   const [savedTableId, setSavedTableId] = useState<string | undefined>(id);
 
   const [headerCols, setHeaderCols] = useState<string[]>([]);
