@@ -1,25 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {v4 as uuidv4} from 'uuid';
 import './Table.css';
-import Row from './components/row/Row';
 import { ActionTypes, useTable } from '../../context/Table';
 import { COLUMNS, ROWS, letters } from '../../utils';
+import Row from './components/row/Row';
 
 function Table() {
   // Keeps track of the spreadsheet table as simple matrix 
   // of numbers so we keep rendering faster without complex json objects
   const [table, setTable] = useState<number[][]>([[]]);
-  
+
   const { id } = useParams();
 
   const [savedTableId, setSavedTableId] = useState<string | undefined>(id);
 
   const [headerCols, setHeaderCols] = useState<string[]>([]);
-
-  const [clickedRow, setClickedRow] = useState<number>(-1);
-
-  const [cellValue, setCellValue] = useState<string>("");
 
   const { state: { currentTable }, dispatch } = useTable();
 
@@ -91,20 +87,17 @@ function Table() {
 
     return columnHeader;
   }
-
+  
   // Generate the initial table for the spreadsheet
   useEffect(() => {
-    // Starting on 0 and increasing in 1 until the array is finished
-    // so if we have a table of 2 by 3 the first row will be [0,1] and
-    // the last one [4,5]
+    // Initialize the table array
     const newTable = new Array(ROWS);
-    for(let i=0; i<ROWS ;i++){
-      const startingKeyValue = COLUMNS*i;
+    for (let i = 0; i < ROWS; i++) {
+      const startingKeyValue = COLUMNS * i;
       newTable[i] = buildSheetList(COLUMNS, startingKeyValue);
     }
     setTable(newTable);
-
-    // Defines the header list to keep track of the related indexes using useMemo
+    // Defines the header list to keep track of the related indexes
     const newHeaderCols = new Array(COLUMNS);
     for (let i = 0; i < COLUMNS; i++) {
       newHeaderCols[i] = generateSheetHeader(i);
@@ -112,28 +105,6 @@ function Table() {
     setHeaderCols(newHeaderCols)
 
   }, [COLUMNS, ROWS]);
-
-  const setCurrentCell = (id: number) => {
-    if(id in currentTable){
-      setCellValue(currentTable[id]);
-    }
-    setClickedRow(id)
-  }
-
-  const onCellValueChange = (e: React.FormEvent<HTMLInputElement>): void => {
-    setCellValue(e.currentTarget.value);
-  };
-
-  const onCellBlur = (childValue: number) => {
-    if (childValue in currentTable || (!(childValue in currentTable) || cellValue !== "")) {
-      dispatch({
-        type: ActionTypes.SET_CELL,
-        payload: { cell: {id: childValue, value: cellValue}}
-      });
-      setClickedRow(-1)
-      setCellValue("");
-    }
-  }
 
   return (
     <div className="home">
@@ -160,33 +131,14 @@ function Table() {
             </thead>
             <tbody>
               {table.map((row: number[], parentIndex: number) => {
-                  const startingKeyValue = COLUMNS*parentIndex;
                   return (
-                    <tr key={'tr'+parentIndex+1}>
-                      <th key={'th'+startingKeyValue}>{parentIndex+1}</th>
-                      {
-                        row.map(
-                          (childValue: number) => clickedRow === childValue ?
-                            <td key={childValue+parentIndex} className='input-focus'>
-                              <input
-                                autoFocus
-                                type='text'
-                                value={cellValue}
-                                onChange={onCellValueChange}
-                                onBlur={() => onCellBlur(childValue)}
-                              />
-                              </td>
-                          :
-                            <Row
-                              key={childValue+parentIndex}
-                              id={childValue}
-                              headerCols={headerCols}
-                              table={table}
-                              onClick={() => setCurrentCell(childValue)}
-                            />
-                        )
-                      }
-                    </tr>
+                    <Row
+                      key={'tr' + parentIndex + 1}
+                      parentIndex={parentIndex}
+                      row={row}
+                      headerCols={headerCols}
+                      table={table}
+                    />
                   );
                 }
               )}
