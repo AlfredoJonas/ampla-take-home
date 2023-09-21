@@ -26,6 +26,7 @@ interface Cell {
   id: number;
   value: string;
 }
+
 // Define the reducer function
 interface TableAction {
   type: ActionTypes;
@@ -34,7 +35,7 @@ interface TableAction {
 
 const tableReducer = (state: TableState, action: TableAction): TableState => {
   switch (action.type) {
-    case ActionTypes.SET_CELL:
+    case ActionTypes.SET_CELL: {
       const {
         payload: {
           cell: { id, value },
@@ -42,11 +43,14 @@ const tableReducer = (state: TableState, action: TableAction): TableState => {
       } = action;
       state.currentTable[id] = value;
       return { ...state };
-    case ActionTypes.SET_SAVED_TABLE:
+    }
+    case ActionTypes.SET_SAVED_TABLE: {
       const {
         payload: { table },
       } = action;
       state.currentTable = table as currentTable;
+      return { ...state }; // Return the updated state here
+    }
     default:
       return state;
   }
@@ -58,7 +62,10 @@ const TableContext = createContext<
 >(undefined);
 
 // Create a custom hook to access the context
-export const useTable = () => {
+export const useTable = (): {
+  state: TableState;
+  dispatch: React.Dispatch<TableAction>;
+} => {
   const context = useContext(TableContext);
   if (context === undefined) {
     throw new Error("useTable must be used within a TableProvider");
@@ -71,7 +78,9 @@ interface TableProviderProps {
   children: ReactNode;
 }
 
-export const TableProvider = ({ children }: TableProviderProps) => {
+export const TableProvider: React.FC<TableProviderProps> = ({
+  children,
+}: TableProviderProps) => {
   const [state, dispatch] = useReducer(tableReducer, initialState);
 
   return (

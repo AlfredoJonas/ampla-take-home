@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import "./Table.css";
@@ -6,7 +6,7 @@ import { ActionTypes, useTable } from "../../context/Table";
 import { COLUMNS, ROWS, letters } from "../../utils";
 import Row from "./components/row/Row";
 
-function Table() {
+const Table: React.FC = () => {
   // Keeps track of the spreadsheet table as simple matrix
   // of numbers so we keep rendering faster without complex json objects
   const [table, setTable] = useState<number[][]>([[]]);
@@ -25,23 +25,27 @@ function Table() {
   const [showMessage, setShowMessage] = useState(false);
 
   // Function to show the floating message
-  const shareTableUrl = () => {
-    const tableId = savedTableId || uuidv4();
+  const shareTableUrl = (): void => {
+    const tableId = savedTableId != null ? uuidv4() : "null";
     localStorage.setItem(tableId, JSON.stringify(currentTable));
     setSavedTableId(tableId);
     const sharedUrl = `${window.location.href}/${tableId}`;
-    navigator.clipboard.writeText(sharedUrl);
-    console.log(sharedUrl);
-    setShowMessage(true);
+    try {
+      void navigator.clipboard.writeText(sharedUrl);
+      console.log(sharedUrl);
+      setShowMessage(true);
 
-    setTimeout(() => {
-      setShowMessage(false);
-    }, 2000); // Hide the message after 2 seconds
+      setTimeout(() => {
+        setShowMessage(false);
+      }, 2000); // Hide the message after 2 seconds
+    } catch (error) {
+      console.error("Error copying URL to clipboard:", error);
+    }
   };
 
   useEffect(() => {
-    if (savedTableId) {
-      const savedTable = localStorage.getItem(savedTableId) || "";
+    if (savedTableId != null) {
+      const savedTable = localStorage.getItem(savedTableId) ?? "";
       dispatch({
         type: ActionTypes.SET_SAVED_TABLE,
         payload: { table: JSON.parse(savedTable) },
@@ -151,6 +155,6 @@ function Table() {
       </div>
     </div>
   );
-}
+};
 
 export default Table;

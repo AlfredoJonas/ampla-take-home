@@ -8,7 +8,12 @@ interface TableRowProps {
   table: number[][];
 }
 
-function Row({ parentIndex, row, headerCols, table }: TableRowProps) {
+const Row: React.FC<TableRowProps> = ({
+  parentIndex,
+  row,
+  headerCols,
+  table,
+}) => {
   const startingKeyValue = headerCols.length * parentIndex;
 
   return (
@@ -24,6 +29,6 @@ function Row({ parentIndex, row, headerCols, table }: TableRowProps) {
       ))}
     </tr>
   );
-}
+};
 
 export default Row;

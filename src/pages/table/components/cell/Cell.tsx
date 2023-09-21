@@ -42,7 +42,7 @@ const Cell: React.FC<CellProps> = ({ id, headerCols, table }) => {
       // Use a regular expression to separate letters and numbers
       const matches = cellValue.match(regex);
 
-      if (matches) {
+      if (matches != null) {
         const letterCode = matches[1].toUpperCase();
         // We decrease the index in 1 because of the translation
         // of the real array index to the beauty left numered column
@@ -79,7 +79,7 @@ const Cell: React.FC<CellProps> = ({ id, headerCols, table }) => {
    * @param {number} childValue - The `childValue` parameter is a number that represents the new value
    * entered in the cell.
    */
-  const onCellBlur = (childValue: number) => {
+  const onCellBlur = (childValue: number): void => {
     const newCellValueDiffOld =
       childValue in currentTable && currentTable[id] !== cellValue;
     const newCellValueDiffEmpty =
@@ -93,9 +93,9 @@ const Cell: React.FC<CellProps> = ({ id, headerCols, table }) => {
     setEditable(false);
   };
 
-  const { error, value } = !editable
-    ? checkNextCell(id, visitedCells)
-    : { error: false, value: "" };
+  const { error, value } = editable
+    ? { error: false, value: "" }
+    : checkNextCell(id, visitedCells);
   return editable ? (
     <td className="input-focus">
       <input
@@ -110,7 +110,8 @@ const Cell: React.FC<CellProps> = ({ id, headerCols, table }) => {
     </td>
   ) : (
     <td
-      className={`${error ? "cell-error" : ""}`}
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+      className={error ? "cell-error" : ""}
       onClick={() => {
         setEditable(true);
       }}

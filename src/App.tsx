@@ -3,9 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Table from "./pages/table/Table";
 import { TableProvider } from "./context/Table";
 
-export const App = () => (
+export const App: React.FC = () => (
   <TableProvider>
-    {" "}
     {/* Wrap your entire app with TableProvider */}
     <BrowserRouter>
       <Routes>
