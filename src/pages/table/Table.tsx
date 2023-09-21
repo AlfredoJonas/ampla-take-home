@@ -26,7 +26,7 @@ const Table: React.FC = () => {
 
   // Function to show the floating message
   const shareTableUrl = (): void => {
-    const tableId = savedTableId != null ? uuidv4() : "null";
+    const tableId = savedTableId == null ? uuidv4() : "";
     localStorage.setItem(tableId, JSON.stringify(currentTable));
     setSavedTableId(tableId);
     const sharedUrl = `${window.location.href}/${tableId}`;
