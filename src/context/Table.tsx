@@ -9,7 +9,7 @@ const initialState = {
   currentTable: {},
 };
 
-type currentTable = Record<string, string>;
+export type currentTable = Record<string, string>;
 
 // Define the initial state interface
 interface TableState {
