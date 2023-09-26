@@ -4,33 +4,37 @@ import React, {
   useReducer,
   type ReactNode,
 } from "react";
+import { buildRenderingTable, findCellValue, buildHeaderCols } from "./utils";
 
 const initialState = {
+  headerCols: buildHeaderCols(),
   currentTable: {},
+  // Keeps track of the spreadsheet table as simple matrix
+  // of numbers so we keep rendering faster without complex json objects
+  renderingTable: [[]],
 };
 
-type currentTable = Record<string, string>;
+export type currentTableType = Record<string, any>;
+export type renderingTableType = any[][];
+export type renderingTableRowType = Record<string, any>;
 
 // Define the initial state interface
 interface TableState {
-  currentTable: currentTable;
+  headerCols: string[];
+  currentTable: currentTableType;
+  renderingTable: renderingTableType;
 }
 
 // Define action types
 export enum ActionTypes {
   SET_CELL = "SET_CELL",
-  SET_SAVED_TABLE = "SET_SAVED_TABLE",
-}
-
-interface Cell {
-  id: number;
-  value: string;
+  SET_RENDERING_TABLE = "SET_RENDERING_TABLE",
 }
 
 // Define the reducer function
 interface TableAction {
   type: ActionTypes;
-  payload: Record<string, Cell | currentTable>;
+  payload: Record<string, any>;
 }
 
 const tableReducer = (state: TableState, action: TableAction): TableState => {
@@ -38,17 +42,29 @@ const tableReducer = (state: TableState, action: TableAction): TableState => {
     case ActionTypes.SET_CELL: {
       const {
         payload: {
-          cell: { id, value },
+          cell: { id, value, rowIndex, colIndex },
         },
       } = action;
       state.currentTable[id] = value;
+      const { value: realCellValue } = findCellValue(
+        id,
+        state.currentTable,
+        state.renderingTable,
+        state.headerCols,
+      );
+      state.renderingTable[rowIndex][colIndex].value = realCellValue;
       return { ...state };
     }
-    case ActionTypes.SET_SAVED_TABLE: {
+    case ActionTypes.SET_RENDERING_TABLE: {
       const {
         payload: { table },
       } = action;
-      state.currentTable = table as currentTable;
+      state.currentTable = table as currentTableType;
+      state.renderingTable = buildRenderingTable(
+        state.currentTable,
+        state.renderingTable,
+        state.headerCols,
+      );
       return { ...state }; // Return the updated state here
     }
     default:

@@ -21,7 +21,13 @@ describe("Cell Component", () => {
       <table>
         <tbody>
           <tr>
-            <Cell id={1} headerCols={["A"]} table={[[1]]} />
+            <Cell
+              id={1}
+              error={false}
+              value={undefined}
+              rowIndex={0}
+              colIndex={0}
+            />
           </tr>
         </tbody>
       </table>,
@@ -46,7 +52,13 @@ describe("Cell Component", () => {
       <table>
         <tbody>
           <tr>
-            <Cell id={1} headerCols={[]} table={[]} />
+            <Cell
+              id={1}
+              error={false}
+              value={undefined}
+              rowIndex={0}
+              colIndex={0}
+            />
           </tr>
         </tbody>
       </table>,
@@ -75,7 +87,13 @@ describe("Cell Component", () => {
       <table>
         <tbody>
           <tr>
-            <Cell id={1} headerCols={[]} table={[]} />
+            <Cell
+              id={1}
+              error={false}
+              value={undefined}
+              rowIndex={0}
+              colIndex={0}
+            />
           </tr>
         </tbody>
       </table>,
